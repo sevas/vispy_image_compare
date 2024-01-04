@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Mostly a copy with slight changes from vispy/vispy/visuals/image.py
 # Copyright (c) Vispy Development Team. All Rights Reserved.
 # Distributed under the (new) BSD License. See LICENSE.txt for more info.
 """Primitive 2D image visual class."""
