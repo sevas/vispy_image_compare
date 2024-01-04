@@ -303,6 +303,9 @@ class ImageCompareVisual(Visual):
         """Initialize image properties, texture storage, and interpolation methods."""
         self._data1 = None
         self._data2 = None
+        self._split_method = 1
+        self._split_x = 0.5
+        self._split_y = 0.5
 
         # load 'float packed rgba8' interpolation kernel
         # to load float interpolation kernel use
@@ -361,6 +364,11 @@ class ImageCompareVisual(Visual):
 
         if data1 is not None and data2 is not None:
             self.set_data(data1, data2)
+
+        self.shared_program['split_method'] = self._split_method
+        self.shared_program['split_y'] = self._split_y
+        self.shared_program['split_x'] = self._split_x
+
         self.freeze()
 
     def _init_interpolation(self, interpolation_names):
@@ -482,6 +490,38 @@ class ImageCompareVisual(Visual):
     def cmap(self, cmap):
         self._cmap = get_colormap(cmap)
         self._need_colortransform_update = True
+        self.update()
+
+    @property
+    def split_method(self):
+        return self._split_method
+
+    @split_method.setter
+    def split_method(self, value):
+        if value not in (0, 1):
+            raise ValueError("split_method must be 0 (horizontal) or 1 (vertical)")
+        self._split_method = value
+        self.shared_program['split_method'] = self._split_method
+        self.update()
+
+    @property
+    def split_x(self):
+        return self._split_x
+
+    @split_x.setter
+    def split_x(self, value):
+        self._split_x = value
+        self.shared_program['split_x'] = self._split_x
+        self.update()
+
+    @property
+    def split_y(self):
+        return self._split_y
+
+    @split_x.setter
+    def split_y(self, value):
+        self._split_y = value
+        self.shared_program['split_y'] = self._split_y
         self.update()
 
     @property
@@ -720,14 +760,15 @@ class ImageCompareVisual(Visual):
         if self._data2 is None:
             return False
 
+        self.shared_program['split_method'] = self._split_method
+        self.shared_program['split_y'] = self._split_y
+        self.shared_program['split_x'] = self._split_x
+
+
         # if self._need_interpolation_update:
         #     self._build_interpolation()
         self.shared_program['u_texture1'] = self._texture1
         self.shared_program['u_texture2'] = self._texture2
-
-        self.shared_program['split_method'] = 1
-        self.shared_program['split_y'] = 0.5
-        self.shared_program['split_x'] = 0.5
 
         if self._need_texture_upload:
             self._build_texture()
@@ -743,6 +784,7 @@ class ImageCompareVisual(Visual):
 
         if view._need_method_update:
             self._update_method(view)
+
 
 
 ImageCompare = create_visual_node(ImageCompareVisual)

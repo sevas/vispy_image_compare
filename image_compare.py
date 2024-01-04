@@ -70,6 +70,14 @@ def on_key_press(event):
         canvas.title = 'Spatial Filtering using %s Filter' % interpolation
         canvas.update()
 
+@canvas.events.mouse_move.connect
+def on_mouse_move(event):
+
+    sep.set_data(pos=event.pos[0])
+    print(event.pos[0])
+    image.split_x = event.pos[0] / 640
+    canvas.update()
+
 
 if __name__ == '__main__' and sys.flags.interactive == 0:
     app.run()
